@@ -3,6 +3,7 @@ import Header from "../layout/Header";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../config/axiosConfig";
+import minutesToHHMM from "../../utils/minutesToHHMM";
 
 const MovieDetails = () => {
   const { movieId } = useParams();
@@ -53,13 +54,17 @@ const MovieDetails = () => {
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <CardContent>
             <Typography component="div" variant="h6">
-              {movieDetails.title}
+              {`${movieDetails.title} (${Number(
+                movieDetails.popularity
+              ).toFixed(2)})`}
             </Typography>
 
             <Typography variant="subtitle1" component="p">
-              {`${new Date(movieDetails.release_date).getFullYear()} | ${
-                movieDetails.runtime
-              } Minutes | ${movieDetails?.production_companies[0]?.name}`}
+              {`${new Date(
+                movieDetails.release_date
+              ).getFullYear()} | ${minutesToHHMM(movieDetails.runtime)} | ${
+                movieDetails?.production_companies[0]?.name
+              }`}
             </Typography>
 
             <Box>
