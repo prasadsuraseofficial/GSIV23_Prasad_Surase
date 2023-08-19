@@ -7,7 +7,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "@emotion/styled";
 import { Bars } from "react-loader-spinner";
 import debounce from "lodash.debounce";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import NoSearchResults from "./../../assets/images/no_results.png";
 
 const InfiniteScrollBox = styled(InfiniteScroll)(() => ({
   display: "flex",
@@ -23,6 +24,17 @@ const StyledBox = styled(Box)(() => ({
   gap: "1rem",
   margin: "1rem",
   justifyContent: "center",
+}));
+
+const NoSearchResultsBox = styled(Box)(() => ({
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  transform: "translate(-50%, -50%)",
+
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
 }));
 
 const MovieList = () => {
@@ -86,7 +98,12 @@ const MovieList = () => {
           ))}
         </StyledBox>
       ) : searchedMovies.length === 0 && searchQuery ? (
-        <h1>No Results!</h1>
+        <NoSearchResultsBox>
+          <img src={NoSearchResults} width="50%" alt="No Search Results" />
+          <Typography variant="h6" color="primary">
+            No Matching Search Results Found!
+          </Typography>
+        </NoSearchResultsBox>
       ) : (
         <InfiniteScrollBox
           dataLength={movies.length}
