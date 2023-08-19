@@ -42,13 +42,10 @@ const MovieCard = ({ title, desc, popularity, poster_path, movieId }) => {
                 {title.substring(0, 25)}
               </Typography>
               <Typography variant="div" gutterBottom>
-                ({popularity})
+                ({Number(popularity).toFixed(2)})
               </Typography>
             </Box>
-            <Typography
-              variant="body2"
-              //   sx={{ textAlign: "justify" }}
-              color="text.secondary">
+            <Typography variant="body2" color="text.secondary">
               {desc
                 ? desc.substring(0, 85)
                 : "There is no official description available for the above movie"}
