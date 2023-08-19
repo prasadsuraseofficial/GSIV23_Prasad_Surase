@@ -1,6 +1,6 @@
 import MovieCard from "../common/MovieCard";
 import Header from "../layout/Header";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axiosInstance from "../../config/axiosConfig";
 import sortedMovies from "./../../utils/sortMovies";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -9,6 +9,14 @@ import { Bars } from "react-loader-spinner";
 import debounce from "lodash.debounce";
 import { Box, Typography } from "@mui/material";
 import NoSearchResults from "./../../assets/images/no_results.png";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCurrentPage,
+  setMovies,
+  setTotalMoviePages,
+  setSearchQuery,
+  setSearchedMovies,
+} from "../../features/movies/moviesSlice";
 
 const InfiniteScrollBox = styled(InfiniteScroll)(() => ({
   display: "flex",
@@ -38,14 +46,20 @@ const NoSearchResultsBox = styled(Box)(() => ({
 }));
 
 const MovieList = () => {
+  const dispatch = useDispatch();
+
   // All Movies
-  const [movies, setMovies] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalMoviePages, setTotalMoviePages] = useState();
+  const movies = useSelector((state) => state.moviesSlice.movies);
+  const totalMoviePages = useSelector(
+    (state) => state.moviesSlice.totalMoviePages
+  );
+  const currentPage = useSelector((state) => state.moviesSlice.currentPage);
 
   // Searched Movies Results
-  const [searchedMovies, setSearchedMovies] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchQuery = useSelector((state) => state.moviesSlice.searchQuery);
+  const searchedMovies = useSelector(
+    (state) => state.moviesSlice.searchedMovies
+  );
 
   const fetchMovies = () => {
     axiosInstance
@@ -53,14 +67,14 @@ const MovieList = () => {
         `movie/upcoming?language=en-US&include_adult=false&page=${currentPage}`
       )
       .then((res) => {
-        console.log(res.data);
+        console.log("Upcoming Movies=>", res.data);
         const sortedMoviesArr = sortedMovies(res.data.results);
 
-        setTotalMoviePages(res.data.total_pages);
-        setMovies((prevMovies) => [...prevMovies, ...sortedMoviesArr]);
-        setCurrentPage((prevPage) => prevPage + 1);
+        dispatch(setTotalMoviePages(res.data.total_pages));
+        dispatch(setMovies(sortedMoviesArr));
+        dispatch(setCurrentPage(1)); //increment pageNo by 1
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error(err));
   };
 
   useEffect(() => {
@@ -68,16 +82,16 @@ const MovieList = () => {
   }, []);
 
   const handleSearch = debounce((searchQuery) => {
-    setSearchQuery(searchQuery);
+    dispatch(setSearchQuery(searchQuery));
 
     axiosInstance
       .get(
         `/search/movie?query=${searchQuery}&include_adult=false&language=en-US`
       )
       .then((res) => {
-        setSearchedMovies(res.data.results);
+        dispatch(setSearchedMovies(res.data.results));
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error(err));
   }, 250);
 
   return (

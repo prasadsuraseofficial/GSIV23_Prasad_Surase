@@ -1,17 +1,21 @@
 import { Box, CardContent, CardMedia, Typography } from "@mui/material";
 import Header from "../layout/Header";
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axiosInstance from "../../config/axiosConfig";
 import minutesToHHMM from "../../utils/minutesToHHMM";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setMovieCasts,
+  setMovieDetails,
+} from "../../features/movies/moviesSlice";
 
 const MovieDetails = () => {
+  const dispatch = useDispatch();
   const { movieId } = useParams();
 
-  const [movieDetails, setMovieDetails] = useState({
-    production_companies: [],
-  });
-  const [movieCasts, setMovieCasts] = useState([]);
+  const movieDetails = useSelector((state) => state.moviesSlice.movieDetails);
+  const movieCasts = useSelector((state) => state.moviesSlice.movieCasts);
 
   useEffect(() => {
     const fetchMovieAndCasts = async () => {
@@ -21,10 +25,10 @@ const MovieDetails = () => {
           axiosInstance.get(`/movie/${movieId}/credits?language=en-US`),
         ]);
 
-        setMovieDetails(await movieInfo.data);
-        setMovieCasts(await castsInfo.data.cast);
+        dispatch(setMovieDetails(await movieInfo.data));
+        dispatch(setMovieCasts(await castsInfo.data.cast));
       } catch (error) {
-        console.log("error", error);
+        console.error("error while fetching movie & casts", error);
       }
     };
 

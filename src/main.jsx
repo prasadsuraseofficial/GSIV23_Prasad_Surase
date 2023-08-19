@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider } from "@mui/material";
-import { theme, darkTheme } from "./theme/theme";
+// import { ThemeProvider } from "@mui/material";
+// import { theme, darkTheme } from "./theme/theme";
+import { Provider } from "react-redux";
+import store from "./store/store";
 import App from "./App.jsx";
 import "./index.css";
 // MUI font imports
@@ -11,14 +13,12 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-const DARK_MODE_ON = false;
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ThemeProvider theme={DARK_MODE_ON ? darkTheme : theme}>
+    <Provider store={store}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </ThemeProvider>
+    </Provider>
   </React.StrictMode>
 );

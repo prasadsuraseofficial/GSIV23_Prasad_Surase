@@ -2,13 +2,15 @@ import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-// import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
 import { IconButton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import propTypes from "prop-types";
+import { NightsStay, LightMode } from "@mui/icons-material";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleThemeMode } from "../../features/theme/themeSlice";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -54,6 +56,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 function Header({ isHomePage, handleSearch }) {
+  const dispatch = useDispatch();
+
+  const theme = useSelector((state) => state.themeSlice.mode);
+
   return (
     <Box>
       <AppBar position="static">
@@ -74,11 +80,17 @@ function Header({ isHomePage, handleSearch }) {
             <Typography variant="h6">Movie Details</Typography>
           )}
 
-          <Link to="/">
-            <IconButton>
-              <HomeIcon />
+          <Box>
+            <IconButton onClick={() => dispatch(toggleThemeMode())}>
+              {theme === "light" ? <NightsStay /> : <LightMode />}
             </IconButton>
-          </Link>
+
+            <Link to="/">
+              <IconButton>
+                <HomeIcon />
+              </IconButton>
+            </Link>
+          </Box>
         </Toolbar>
       </AppBar>
     </Box>
