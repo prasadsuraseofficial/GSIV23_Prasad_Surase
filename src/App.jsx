@@ -1,8 +1,12 @@
+import { Suspense, lazy } from "react";
 import { useRoutes } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
-import MovieList from "./components/pages/MovieList";
+import { Bars } from "react-loader-spinner";
 import "./App.css";
-import MovieDetails from "./components/pages/MovieDetails";
+import styled from "@emotion/styled";
+
+const MovieList = lazy(() => import("./components/pages/MovieList"));
+const MovieDetails = lazy(() => import("./components/pages/MovieDetails"));
 
 const routes = [
   {
@@ -15,15 +19,27 @@ const routes = [
   },
 ];
 
+const StyledSpinnerContainer = styled("div")`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
 const App = () => {
   const routing = useRoutes(routes);
 
   return (
-    <>
+    <Suspense
+      fallback={
+        <StyledSpinnerContainer>
+          <Bars />
+        </StyledSpinnerContainer>
+      }>
       <CssBaseline enableColorScheme />
 
       {routing}
-    </>
+    </Suspense>
   );
 };
 
