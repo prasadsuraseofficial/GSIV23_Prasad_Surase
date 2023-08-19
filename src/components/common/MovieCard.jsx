@@ -7,8 +7,12 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import propTypes from "prop-types";
 
-const MovieCard = () => {
+const FALLBACK_MOVIE_IMG =
+  "https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk=";
+
+const MovieCard = ({ title, desc, popularity, poster_path }) => {
   return (
     <Link to={"movie-details"} style={{ textDecoration: "none" }}>
       <Card
@@ -21,8 +25,13 @@ const MovieCard = () => {
           <CardMedia
             component="img"
             height="200"
-            src="https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk="
-            alt="lgoo"
+            // src="https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk="
+            src={
+              poster_path
+                ? `https://image.tmdb.org/t/p/w500/${poster_path}`
+                : FALLBACK_MOVIE_IMG
+            }
+            alt="movie poster"
           />
           <CardContent>
             <Box
@@ -32,23 +41,33 @@ const MovieCard = () => {
                 justifyContent: "space-between",
               }}>
               <Typography variant="h5" sx={{ fontSize: "120%" }} gutterBottom>
-                MovieCard
+                {title.substring(0, 25)}
               </Typography>
               <Typography variant="div" gutterBottom>
-                (Rating)
+                ({popularity})
               </Typography>
             </Box>
             <Typography
               variant="body2"
               //   sx={{ textAlign: "justify" }}
               color="text.secondary">
-              Lorem ipsum dolor sit amet elit repellendus, eum! Lorem ips...
+              {desc
+                ? desc.substring(0, 85)
+                : "There is no official description available for the above movie"}
+              ...
             </Typography>
           </CardContent>
         </CardActionArea>
       </Card>
     </Link>
   );
+};
+
+MovieCard.propTypes = {
+  title: propTypes.string.isRequired,
+  desc: propTypes.string.isRequired,
+  popularity: propTypes.number.isRequired,
+  poster_path: propTypes.string,
 };
 
 export default MovieCard;
