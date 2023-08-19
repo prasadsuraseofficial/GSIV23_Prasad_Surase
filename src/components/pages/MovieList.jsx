@@ -6,6 +6,8 @@ import sortedMovies from "./../../utils/sortMovies";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "@emotion/styled";
 import { Bars } from "react-loader-spinner";
+import debounce from "lodash.debounce";
+import { Box } from "@mui/material";
 
 const InfiniteScrollBox = styled(InfiniteScroll)(() => ({
   display: "flex",
@@ -15,22 +17,34 @@ const InfiniteScrollBox = styled(InfiniteScroll)(() => ({
   justifyContent: "center",
 }));
 
+const StyledBox = styled(Box)(() => ({
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "1rem",
+  margin: "1rem",
+  justifyContent: "center",
+}));
+
 const MovieList = () => {
+  // All Movies
   const [movies, setMovies] = useState([]);
-  const [totalPages, setTotalPages] = useState();
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalMoviePages, setTotalMoviePages] = useState();
+
+  // Searched Movies Results
+  const [searchedMovies, setSearchedMovies] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchMovies = () => {
     axiosInstance
-      .get(`movie/upcoming?language=en-US&page=${currentPage}`)
+      .get(
+        `movie/upcoming?language=en-US&include_adult=false&page=${currentPage}`
+      )
       .then((res) => {
         console.log(res.data);
-
         const sortedMoviesArr = sortedMovies(res.data.results);
 
-        // console.log(sortedMoviesArr, "sorted");
-
-        setTotalPages(res.data.total_pages);
+        setTotalMoviePages(res.data.total_pages);
         setMovies((prevMovies) => [...prevMovies, ...sortedMoviesArr]);
         setCurrentPage((prevPage) => prevPage + 1);
       })
@@ -41,36 +55,56 @@ const MovieList = () => {
     fetchMovies();
   }, []);
 
-  console.log(currentPage, totalPages);
+  const handleSearch = debounce((searchQuery) => {
+    setSearchQuery(searchQuery);
+
+    axiosInstance
+      .get(
+        `/search/movie?query=${searchQuery}&include_adult=false&language=en-US`
+      )
+      .then((res) => {
+        setSearchedMovies(res.data.results);
+      })
+      .catch((err) => console.log(err));
+  }, 250);
 
   return (
     <>
-      <Header isHomePage={true} />
+      <Header isHomePage={true} handleSearch={handleSearch} />
 
-      {/* <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          margin: "1rem",
-          justifyContent: "center",
-        }}> */}
-      <InfiniteScrollBox
-        dataLength={movies.length}
-        next={fetchMovies}
-        hasMore={currentPage < totalPages}
-        loader={<Bars />}>
-        {movies.map((movie, i) => (
-          <MovieCard
-            title={movie.title}
-            desc={movie.overview}
-            popularity={movie.popularity}
-            poster_path={movie.poster_path}
-            key={i}
-          />
-        ))}
-      </InfiniteScrollBox>
-      {/* </Box> */}
+      {searchedMovies.length > 0 && searchQuery ? (
+        <StyledBox>
+          {searchedMovies.map((movie, i) => (
+            <MovieCard
+              title={movie.title}
+              desc={movie.overview}
+              popularity={movie.popularity}
+              poster_path={movie.poster_path}
+              movieId={movie.id}
+              key={i}
+            />
+          ))}
+        </StyledBox>
+      ) : searchedMovies.length === 0 && searchQuery ? (
+        <h1>No Results!</h1>
+      ) : (
+        <InfiniteScrollBox
+          dataLength={movies.length}
+          next={fetchMovies}
+          hasMore={currentPage < totalMoviePages}
+          loader={<Bars />}>
+          {movies.map((movie, i) => (
+            <MovieCard
+              title={movie.title}
+              desc={movie.overview}
+              popularity={movie.popularity}
+              poster_path={movie.poster_path}
+              movieId={movie.id}
+              key={i}
+            />
+          ))}
+        </InfiniteScrollBox>
+      )}
     </>
   );
 };

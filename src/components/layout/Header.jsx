@@ -53,11 +53,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-Header.propTypes = {
-  isHomePage: propTypes.bool.isRequired,
-};
-
-function Header({ isHomePage }) {
+function Header({ isHomePage, handleSearch }) {
   return (
     <Box>
       <AppBar position="static">
@@ -71,6 +67,7 @@ function Header({ isHomePage }) {
                 placeholder="Search…"
                 fullWidth={true}
                 inputProps={{ "aria-label": "search" }}
+                onChange={(e) => handleSearch(e.target.value)}
               />
             </Search>
           ) : (
@@ -87,5 +84,10 @@ function Header({ isHomePage }) {
     </Box>
   );
 }
+
+Header.propTypes = {
+  isHomePage: propTypes.bool.isRequired,
+  handleSearch: propTypes.func,
+};
 
 export default Header;
