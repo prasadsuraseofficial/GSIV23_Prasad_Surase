@@ -12,23 +12,21 @@ import propTypes from "prop-types";
 const FALLBACK_MOVIE_IMG =
   "https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk=";
 
-const MovieCard = ({ title, desc, popularity, poster_path }) => {
+const MovieCard = ({ title, desc, popularity, poster_path, movieId }) => {
   return (
-    <Link to={"movie-details"} style={{ textDecoration: "none" }}>
+    <Link to={`movie-details/${movieId}`} style={{ textDecoration: "none" }}>
       <Card
         sx={{
-          // width: "350px",
           borderRadius: "10px",
-          width: { md: "100%", lg: "350px" },
+          width: { sm: "100%", md: "350px" },
         }}>
         <CardActionArea>
           <CardMedia
             component="img"
             height="200"
-            // src="https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk="
             src={
               poster_path
-                ? `https://image.tmdb.org/t/p/w500/${poster_path}`
+                ? `${import.meta.env.VITE_MOVIEDB_IMG_BASE_URI}/${poster_path}`
                 : FALLBACK_MOVIE_IMG
             }
             alt="movie poster"
@@ -68,6 +66,7 @@ MovieCard.propTypes = {
   desc: propTypes.string.isRequired,
   popularity: propTypes.number.isRequired,
   poster_path: propTypes.string,
+  movieId: propTypes.number.isRequired,
 };
 
 export default MovieCard;

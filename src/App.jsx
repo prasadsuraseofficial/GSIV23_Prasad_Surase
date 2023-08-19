@@ -10,7 +10,7 @@ const routes = [
     element: <MovieList />,
   },
   {
-    path: "/movie-details",
+    path: "/movie-details/:movieId",
     element: <MovieDetails />,
   },
 ];
