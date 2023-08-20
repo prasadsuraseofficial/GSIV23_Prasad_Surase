@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -7,7 +8,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import HomeIcon from "@mui/icons-material/Home";
 import { IconButton, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import propTypes from "prop-types";
+import PropTypes from "prop-types";
 import { NightsStay, LightMode } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleThemeMode } from "../../features/theme/themeSlice";
@@ -20,11 +21,11 @@ const Search = styled("div")(({ theme }) => ({
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
   marginLeft: 0,
-  width: "100%",
+  width: "80%",
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
     width: "auto",
-    maxWidth: "90%",
+    maxWidth: "80%",
   },
 }));
 
@@ -57,8 +58,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 function Header({ isHomePage, handleSearch }) {
   const dispatch = useDispatch();
-
   const theme = useSelector((state) => state.themeSlice.mode);
+
+  // cache icon as it'll only change when theme value is changed
+  const themeIcon = useMemo(() => {
+    return theme === "light" ? <NightsStay /> : <LightMode />;
+  }, [theme]);
 
   return (
     <Box>
@@ -82,7 +87,7 @@ function Header({ isHomePage, handleSearch }) {
 
           <Box>
             <IconButton onClick={() => dispatch(toggleThemeMode())}>
-              {theme === "light" ? <NightsStay /> : <LightMode />}
+              {themeIcon}
             </IconButton>
 
             <Link to="/">
@@ -98,8 +103,8 @@ function Header({ isHomePage, handleSearch }) {
 }
 
 Header.propTypes = {
-  isHomePage: propTypes.bool.isRequired,
-  handleSearch: propTypes.func,
+  isHomePage: PropTypes.bool.isRequired,
+  handleSearch: PropTypes.func,
 };
 
 export default Header;
