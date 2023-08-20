@@ -2,13 +2,17 @@ import { Box, CardContent, CardMedia, Typography } from "@mui/material";
 import Header from "../layout/Header";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
-import axiosInstance from "../../config/axiosConfig";
 import minutesToHHMM from "../../utils/minutesToHHMM";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setMovieCasts,
-  setMovieDetails,
-} from "../../features/movies/moviesSlice";
+import { fetchMovieAndCasts } from "../../features/movies/moviesSlice";
+import MovieThumbnail from "../../assets/images/movie_thumbnail.png";
+
+// Util function to get movie image URL
+const getMovieImg = (posterPath) => {
+  return posterPath
+    ? `${import.meta.env.VITE_MOVIEDB_IMG_BASE_URI}/${posterPath}`
+    : MovieThumbnail;
+};
 
 const MovieDetails = () => {
   const dispatch = useDispatch();
@@ -18,25 +22,14 @@ const MovieDetails = () => {
   const movieCasts = useSelector((state) => state.moviesSlice.movieCasts);
 
   useEffect(() => {
-    const fetchMovieAndCasts = async () => {
-      try {
-        const [movieInfo, castsInfo] = await Promise.all([
-          axiosInstance.get(`movie/${movieId}?language=en-US`),
-          axiosInstance.get(`/movie/${movieId}/credits?language=en-US`),
-        ]);
+    dispatch(fetchMovieAndCasts(movieId));
+  }, [movieId, dispatch]);
 
-        dispatch(setMovieDetails(await movieInfo.data));
-        dispatch(setMovieCasts(await castsInfo.data.cast));
-      } catch (error) {
-        console.error("error while fetching movie & casts", error);
-      }
-    };
-
-    fetchMovieAndCasts();
-  }, [movieId]);
-
-  const FALLBACK_MOVIE_IMG =
-    "https://media.gettyimages.com/id/1244034031/vector/cinema-poster-with-cola-film-strip-and-clapper-vector.jpg?s=612x612&w=gi&k=20&c=8ClshQC50T-wPj6CPvnPnFq1Er6Fs8fbrreXWehvdgk=";
+  const renderCasts = movieCasts.slice(0, 3).map((cast, i) => (
+    <Typography variant="subtitle1" component="span" key={i}>
+      {` ${cast.original_name},`}
+    </Typography>
+  ));
 
   return (
     <>
@@ -46,13 +39,7 @@ const MovieDetails = () => {
         <CardMedia
           component="img"
           sx={{ width: 151 }}
-          image={
-            movieDetails.poster_path
-              ? `${import.meta.env.VITE_MOVIEDB_IMG_BASE_URI}/${
-                  movieDetails.poster_path
-                }`
-              : FALLBACK_MOVIE_IMG
-          }
+          image={getMovieImg(movieDetails.poster_path)}
           alt="Live from space album cover"
         />
         <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -66,21 +53,14 @@ const MovieDetails = () => {
             <Typography variant="subtitle1" component="p">
               {`${new Date(
                 movieDetails.release_date
-              ).getFullYear()} | ${minutesToHHMM(movieDetails.runtime)} | ${
-                movieDetails?.production_companies[0]?.name
+              ).getFullYear()} | ${minutesToHHMM(
+                movieDetails.runtime
+              )} | Director: ${
+                movieDetails?.production_companies[0]?.name || "Unknown"
               }`}
             </Typography>
 
-            <Box>
-              Casts:
-              {movieCasts.slice(0, 3).map((cast, i) => {
-                return (
-                  <Typography variant="subtitle1" component="span" key={i}>
-                    {` ${cast.original_name},`}
-                  </Typography>
-                );
-              })}
-            </Box>
+            <Box>Casts: {renderCasts}</Box>
 
             <Typography
               variant="subtitle"

@@ -1,8 +1,6 @@
 import MovieCard from "../common/MovieCard";
 import Header from "../layout/Header";
 import { useEffect } from "react";
-import axiosInstance from "../../config/axiosConfig";
-import sortedMovies from "./../../utils/sortMovies";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "@emotion/styled";
 import { Bars } from "react-loader-spinner";
@@ -11,11 +9,8 @@ import { Box, Typography } from "@mui/material";
 import NoSearchResults from "./../../assets/images/no_results.png";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setCurrentPage,
-  setMovies,
-  setTotalMoviePages,
-  setSearchQuery,
-  setSearchedMovies,
+  fetchMovies,
+  fetchSearchedMovies,
 } from "../../features/movies/moviesSlice";
 
 const InfiniteScrollBox = styled(InfiniteScroll)(() => ({
@@ -45,6 +40,22 @@ const NoSearchResultsBox = styled(Box)(() => ({
   alignItems: "center",
 }));
 
+const NoMovies = () => {
+  return (
+    <NoSearchResultsBox>
+      <img
+        src={NoSearchResults}
+        width="50%"
+        alt="No Search Results"
+        loading="lazy"
+      />
+      <Typography variant="h6" color="primary">
+        No Matching Search Results Found!
+      </Typography>
+    </NoSearchResultsBox>
+  );
+};
+
 const MovieList = () => {
   const dispatch = useDispatch();
 
@@ -61,81 +72,55 @@ const MovieList = () => {
     (state) => state.moviesSlice.searchedMovies
   );
 
-  const fetchMovies = () => {
-    axiosInstance
-      .get(
-        `movie/upcoming?language=en-US&include_adult=false&page=${currentPage}`
-      )
-      .then((res) => {
-        console.log("Upcoming Movies=>", res.data);
-        const sortedMoviesArr = sortedMovies(res.data.results);
-
-        dispatch(setTotalMoviePages(res.data.total_pages));
-        dispatch(setMovies(sortedMoviesArr));
-        dispatch(setCurrentPage(1)); //increment pageNo by 1
-      })
-      .catch((err) => console.error(err));
-  };
-
   useEffect(() => {
-    fetchMovies();
+    dispatch(fetchMovies(currentPage));
   }, []);
 
-  const handleSearch = debounce((searchQuery) => {
-    dispatch(setSearchQuery(searchQuery));
+  const DEBOUNCE_TIMER = 300; //300ms
 
-    axiosInstance
-      .get(
-        `/search/movie?query=${searchQuery}&include_adult=false&language=en-US`
-      )
-      .then((res) => {
-        dispatch(setSearchedMovies(res.data.results));
-      })
-      .catch((err) => console.error(err));
-  }, 250);
+  const handleSearch = debounce((query) => {
+    dispatch(fetchSearchedMovies(query));
+  }, DEBOUNCE_TIMER);
+
+  const renderMovies = (moviesArray) => {
+    return moviesArray.map((movie, i) => (
+      <MovieCard
+        title={movie.title}
+        desc={movie.overview}
+        popularity={movie.popularity}
+        poster_path={movie.poster_path}
+        movieId={movie.id}
+        key={i}
+      />
+    ));
+  };
+
+  const RenderMovieContent = () => {
+    // If a search query is present
+    if (searchQuery) {
+      // If there are search results
+      if (searchedMovies.length > 0) {
+        return <StyledBox>{renderMovies(searchedMovies)}</StyledBox>;
+      } else {
+        return <NoMovies />;
+      }
+    } else {
+      return (
+        <InfiniteScrollBox
+          dataLength={movies.length}
+          next={() => dispatch(fetchMovies(currentPage))}
+          hasMore={currentPage < totalMoviePages}
+          loader={<Bars />}>
+          {renderMovies(movies)}
+        </InfiniteScrollBox>
+      );
+    }
+  };
 
   return (
     <>
       <Header isHomePage={true} handleSearch={handleSearch} />
-
-      {searchedMovies.length > 0 && searchQuery ? (
-        <StyledBox>
-          {searchedMovies.map((movie, i) => (
-            <MovieCard
-              title={movie.title}
-              desc={movie.overview}
-              popularity={movie.popularity}
-              poster_path={movie.poster_path}
-              movieId={movie.id}
-              key={i}
-            />
-          ))}
-        </StyledBox>
-      ) : searchedMovies.length === 0 && searchQuery ? (
-        <NoSearchResultsBox>
-          <img src={NoSearchResults} width="50%" alt="No Search Results" />
-          <Typography variant="h6" color="primary">
-            No Matching Search Results Found!
-          </Typography>
-        </NoSearchResultsBox>
-      ) : (
-        <InfiniteScrollBox
-          dataLength={movies.length}
-          next={fetchMovies}
-          hasMore={currentPage < totalMoviePages}
-          loader={<Bars />}>
-          {movies.map((movie, i) => (
-            <MovieCard
-              title={movie.title}
-              desc={movie.overview}
-              popularity={movie.popularity}
-              poster_path={movie.poster_path}
-              movieId={movie.id}
-              key={i}
-            />
-          ))}
-        </InfiniteScrollBox>
-      )}
+      {RenderMovieContent()}
     </>
   );
 };
