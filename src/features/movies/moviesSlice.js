@@ -39,23 +39,21 @@ const moviesSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      fetchMovies.fulfilled,
-      (state, action) => {
-        state.movies = action.payload.sortedMoviesArray;
-        state.totalMoviePages = action.payload.totalPages;
-        state.currentPage += 1;
-      },
-      builder.addCase(fetchMovieAndCasts.fulfilled, (state, action) => {
-        state.movieDetails = action.payload.movieDetails;
-        state.movieCasts = action.payload.casts;
-      })
-    );
+    builder.addCase(fetchMovies.fulfilled, (state, action) => {
+      const { sortedMoviesArray, totalPages } = action.payload;
+      state.movies = [...state.movies, ...sortedMoviesArray];
+      state.totalMoviePages = totalPages;
+      state.currentPage += 1;
+    });
+    builder.addCase(fetchMovieAndCasts.fulfilled, (state, action) => {
+      const { movieDetails, casts } = action.payload;
+      state.movieDetails = movieDetails;
+      state.movieCasts = casts;
+    });
   },
 });
 
 // thunks for api calls & async operations
-
 const fetchMovieAndCasts = createAsyncThunk(
   "movies/fetchMovieAndCasts",
   async (movieId) => {
@@ -71,6 +69,7 @@ const fetchMovieAndCasts = createAsyncThunk(
       };
     } catch (error) {
       console.error("error while fetching movie & casts", error);
+      throw error; // Rethrow the error to be caught by Redux Toolkit
     }
   }
 );
@@ -84,8 +83,9 @@ const fetchMovies = createAsyncThunk(
       const sortedMoviesArray = sortedMovies(res.data.results);
       const totalPages = res.data.total_pages;
       return { sortedMoviesArray, totalPages };
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 );
@@ -99,8 +99,9 @@ const fetchSearchedMovies = createAsyncThunk(
       thunkAPI.dispatch(setSearchQuery(query));
       const res = await axiosInstance.get(url);
       thunkAPI.dispatch(setSearchedMovies(res.data.results));
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 );
