@@ -35,10 +35,15 @@ const MovieDetails = () => {
     <>
       <Header isHomePage={false} />
 
-      <Box sx={{ display: "flex", margin: "1rem" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          margin: "1rem",
+        }}>
         <CardMedia
           component="img"
-          sx={{ width: 151 }}
+          sx={{ width: { xs: "100%", sm: 151, lg: 200 } }}
           image={getMovieImg(movieDetails.poster_path)}
           alt="Live from space album cover"
         />
