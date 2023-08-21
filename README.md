@@ -76,7 +76,7 @@ With an additional 4 hours or more, I would enhance the application with the fol
 
 4. **Mobile Responsiveness**: Improving the mobile responsiveness, focusing on refining the movie details page for a seamless experience.
 
-5. **Advanced Search Algorithms**: Incorporating intelligent algorithms to offer movie suggestions and similar options based on user searches.
+5. **Integrating React Skeletons**: I would love to add React skeletons support into areas where data retrieval is pending from an API. During this waiting period, the skeleton components can be displayed instead of a loader to give users a sense of the content's structure.
 
 ## Feedback
 
