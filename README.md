@@ -6,6 +6,10 @@ Welcome to **Movie Browser**, a Progressive Web App (PWA) developed using React 
 
 **Progressive Web App | Lazy Loading and Code Splitting | Debouncing Search | Custom Theme and Dark/Light Mode | Axios Interceptors for Authentication | Thunks and Redux Toolkit | Utils and Helpers | Infinite Scroll**
 
+## Live Demo
+
+**[Live Demo (Deployed On Netlify)](https://ps-moviebrowser.netlify.app/)**
+
 ## How to Run
 
 Follow these steps to run the application locally:
