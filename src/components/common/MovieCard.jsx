@@ -43,6 +43,7 @@ const MovieCard = ({ title, desc, popularity, poster_path, movieId }) => {
             height="200"
             src={getMovieImg(poster_path)}
             alt="movie poster"
+            loading="lazy"
           />
           <CardContent>
             <CardContentRow>
