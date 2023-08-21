@@ -59,6 +59,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 function Header({ isHomePage, handleSearch }) {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.themeSlice.mode);
+  const searchQuery = useSelector((state) => state.moviesSlice.searchQuery);
 
   // cache icon as it'll only change when theme value is changed
   const themeIcon = useMemo(() => {
@@ -79,6 +80,7 @@ function Header({ isHomePage, handleSearch }) {
                 fullWidth={true}
                 inputProps={{ "aria-label": "search" }}
                 onChange={(e) => handleSearch(e.target.value)}
+                defaultValue={searchQuery}
               />
             </Search>
           ) : (
